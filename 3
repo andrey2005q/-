@@ -1,0 +1,143 @@
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+
+class Team {
+private:
+    string name;
+    string city;
+    int year;
+    string coach;
+
+    bool isValidYear(int y) {
+        return y > 1800 && y <= 2024; // Перевірка на реалістичний рік
+    }
+
+public:
+    Team() : name(""), city(""), year(0), coach("") {}
+
+    Team(string n, string c, int y, string co) {
+        if (isValidYear(y)) {
+            name = n;
+            city = c;
+            year = y;
+            coach = co;
+        } else {
+            throw invalid_argument("Невірний рік заснування!");
+        }
+    }
+
+    void input() {
+        cout << "Введіть назву команди: ";
+        getline(cin, name);
+        cout << "Введіть місто: ";
+        getline(cin, city);
+        cout << "Введіть рік заснування: ";
+        cin >> year;
+        cin.ignore();
+
+        if (!isValidYear(year)) {
+            cout << "Помилка: Рік має бути між 1800 та 2024!" << endl;
+            year = 0; // Установлюємо в 0 для позначення некоректного значення
+            return;
+        }
+
+        cout << "Введіть тренера: ";
+        getline(cin, coach);
+    }
+
+    void display() const {
+        cout << "Команда: " << name << endl;
+        cout << "Місто: " << city << endl;
+        cout << "Рік заснування: " << year << endl;
+        cout << "Тренер: " << coach << endl;
+    }
+
+    void update(string n, string c, int y, string co) {
+        if (isValidYear(y)) {
+            name = n;
+            city = c;
+            year = y;
+            coach = co;
+        } else {
+            cout << "Помилка: Невірний рік заснування. Оновлення не виконано." << endl;
+        }
+    }
+
+    int getYear() const {
+        return year;
+    }
+
+    string getCity() const {
+        return city;
+    }
+};
+
+void filterByYear(const vector<Team>& teams, int year) {
+    bool found = false;
+    cout << "Команди, засновані після " << year << ":" << endl;
+    for (const auto& team : teams) {
+        if (team.getYear() > year) {
+            team.display();
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "Немає команд, що відповідають критерію." << endl;
+    }
+}
+
+void filterByCity(const vector<Team>& teams, const string& city) {
+    bool found = false;
+    cout << "Команди з міста " << city << ":" << endl;
+    for (const auto& team : teams) {
+        if (team.getCity() == city) {
+            team.display();
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "Немає команд, що відповідають критерію." << endl;
+    }
+}
+
+int main() {
+    vector<Team> teams;
+
+    try {
+        Team team1("Динамо", "Київ", 1927, "Мирча Луческу");
+        teams.push_back(team1);
+    } catch (const invalid_argument& e) {
+        cout << e.what() << endl;
+    }
+
+    Team team2;
+    cout << "Введіть інформацію про команду 2:" << endl;
+    team2.input();
+    if (team2.getYear() > 0) { // Додаємо, тільки якщо рік заснування валідний
+        teams.push_back(team2);
+    }
+
+    cout << endl << "Інформація про всі команди:" << endl;
+    for (const auto& team : teams) {
+        team.display();
+        cout << endl;
+    }
+
+    cout << "Оновлення інформації про першу команду:" << endl;
+    if (!teams.empty()) {
+        teams[0].update("Шахтар", "Донецьк", 1936, "Ігор Йовічевіч");
+    }
+
+    cout << endl << "Інформація після оновлення:" << endl;
+    for (const auto& team : teams) {
+        team.display();
+        cout << endl;
+    }
+
+    cout << "Фільтрація за критеріями:" << endl;
+    filterByYear(teams, 1900);
+    filterByCity(teams, "Київ");
+
+    return 0;
