@@ -1,0 +1,269 @@
+// Packaging.h
+#ifndef PACKAGING_H
+#define PACKAGING_H
+
+#include <string>
+using namespace std;
+
+class Packaging {
+private:
+    int id;
+    string type;
+
+public:
+    Packaging(int id = 0, string type = "Undefined");
+    virtual ~Packaging();
+
+    int getId() const;
+    string getType() const;
+    void setId(int id);
+    void setType(const string& type);
+    virtual void displayInfo() const;
+};
+
+#endif // PACKAGING_H
+
+
+// Box.h
+#ifndef BOX_H
+#define BOX_H
+
+#include "Packaging.h"
+
+class Box : public Packaging {
+private:
+    double weight;
+    double volume;
+
+public:
+    Box(int id = 0, string type = "Box", double weight = 0.0, double volume = 0.0);
+    ~Box();
+
+    double getWeight() const;
+    double getVolume() const;
+    void setWeight(double weight);
+    void setVolume(double volume);
+    void displayInfo() const override;
+};
+
+#endif // BOX_H
+
+
+// Barrel.h
+#ifndef BARREL_H
+#define BARREL_H
+
+#include "Packaging.h"
+
+class Barrel : public Packaging {
+private:
+    double capacity;
+    string liquidType;
+
+public:
+    Barrel(int id = 0, string type = "Barrel", double capacity = 0.0, string liquidType = "Water");
+    ~Barrel();
+
+    double getCapacity() const;
+    string getLiquidType() const;
+    void setCapacity(double capacity);
+    void setLiquidType(const string& liquidType);
+    void displayInfo() const override;
+};
+
+#endif // BARREL_H
+
+
+// Packaging.cpp
+#include "Packaging.h"
+#include <iostream>
+using namespace std;
+
+Packaging::Packaging(int id, string type) : id(id), type(type) {
+    cout << "Конструктор Packaging викликано." << endl;
+}
+
+Packaging::~Packaging() {
+    cout << "Деструктор Packaging викликано." << endl;
+}
+
+int Packaging::getId() const {
+    return id;
+}
+
+string Packaging::getType() const {
+    return type;
+}
+
+void Packaging::setId(int id) {
+    if (id < 0) {
+        cout << "Некоректний ID." << endl;
+        return;
+    }
+    this->id = id;
+}
+
+void Packaging::setType(const string& type) {
+    if (type.empty()) {
+        cout << "Некоректний тип упакування." << endl;
+        return;
+    }
+    this->type = type;
+}
+
+void Packaging::displayInfo() const {
+    cout << "ID: " << id << ", Тип упакування: " << type << endl;
+}
+
+
+// Box.cpp
+#include "Box.h"
+#include <iostream>
+using namespace std;
+
+Box::Box(int id, string type, double weight, double volume)
+    : Packaging(id, type), weight(weight), volume(volume) {
+    cout << "Конструктор Box викликано." << endl;
+}
+
+Box::~Box() {
+    cout << "Деструктор Box викликано." << endl;
+}
+
+double Box::getWeight() const {
+    return weight;
+}
+
+double Box::getVolume() const {
+    return volume;
+}
+
+void Box::setWeight(double weight) {
+    if (weight < 0) {
+        cout << "Некоректна вага." << endl;
+        return;
+    }
+    this->weight = weight;
+}
+
+void Box::setVolume(double volume) {
+    if (volume < 0) {
+        cout << "Некоректний об'єм." << endl;
+        return;
+    }
+    this->volume = volume;
+}
+
+void Box::displayInfo() const {
+    Packaging::displayInfo();
+    cout << "Вага: " << weight << " кг, Об'єм: " << volume << " м^3" << endl;
+}
+
+
+// Barrel.cpp
+#include "Barrel.h"
+#include <iostream>
+using namespace std;
+
+Barrel::Barrel(int id, string type, double capacity, string liquidType)
+    : Packaging(id, type), capacity(capacity), liquidType(liquidType) {
+    cout << "Конструктор Barrel викликано." << endl;
+}
+
+Barrel::~Barrel() {
+    cout << "Деструктор Barrel викликано." << endl;
+}
+
+double Barrel::getCapacity() const {
+    return capacity;
+}
+
+string Barrel::getLiquidType() const {
+    return liquidType;
+}
+
+void Barrel::setCapacity(double capacity) {
+    if (capacity < 0) {
+        cout << "Некоректна ємність." << endl;
+        return;
+    }
+    this->capacity = capacity;
+}
+
+void Barrel::setLiquidType(const string& liquidType) {
+    if (liquidType.empty()) {
+        cout << "Некоректний тип рідини." << endl;
+        return;
+    }
+    this->liquidType = liquidType;
+}
+
+void Barrel::displayInfo() const {
+    Packaging::displayInfo();
+    cout << "Ємність: " << capacity << " л, Тип рідини: " << liquidType << endl;
+} 
+// main.cpp
+#include "Box.h"
+#include "Barrel.h"
+#include <iostream>
+#include <vector>
+#define NOMINMAX // Додаємо цей рядок, щоб уникнути конфлікту макроса max з <Windows.h>
+#include <Windows.h>
+#include <limits> // Додано для використання numeric_limits
+#include <locale> // Додано для встановлення локалізації
+
+using namespace std;
+
+int main() {
+    // Встановлення локалізації для підтримки кирилиці
+    setlocale(LC_ALL, "ukr");
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
+
+    vector<Packaging*> packages;
+
+    // Введення коробки з клавіатури
+    int id;
+    double weight, volume;
+    wcout << L"Введіть ID коробки: ";
+    while (!(cin >> id)  id <= 0) {
+        wcout << L"Некоректний ID. Спробуйте ще раз: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    wcout << L"Введіть вагу коробки (кг): ";
+    while (!(cin >> weight)  weight < 0) {
+        wcout << L"Некоректна вага. Спробуйте ще раз: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    wcout << L"Введіть об'єм коробки (м^3): ";
+    while (!(cin >> volume) || volume < 0) {
+        wcout << L"Некоректний об'єм. Спробуйте ще раз: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    Box* box = new Box(id, "Box", weight, volume);
+    packages.push_back(box);
+
+    // Додавання бочки
+    Barrel* barrel = new Barrel(2, "Barrel", 200.0, "Oil");
+    packages.push_back(barrel);
+
+    // Виведення інформації про всі упаковки
+    wcout << L"\nСписок упаковок:\n";
+    for (const auto& package : packages) {
+        package->displayInfo();
+        wcout << endl;
+    }
+
+    // Звільнення пам'яті
+    for (auto& package : packages) {
+        delete package;
+    }
+
+    return 0;
+} 
