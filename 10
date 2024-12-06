@@ -1,0 +1,132 @@
+#pragma once
+#ifndef CIRCLE_H
+#define CIRCLE_H
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+class Circle {
+private:
+    double x;    // Координата x центру кола
+    double y;    // Координата y центру кола
+    double radius; // Радіус кола
+
+public:
+    Circle(); // Конструктор за замовчуванням
+    Circle(double x, double y, double r); // Конструктор з параметрами
+
+    double area() const; // Геттер площі
+
+    bool operator<(const Circle& other) const; // Перевантаження оператора <
+    Circle operator-(const Circle& other) const; // Перевантаження оператора -
+
+    void display() const; // Вивід кола
+};
+
+#endif // CIRCLE_H#include "Circle.h"
+#include <stdexcept>
+
+Circle::Circle() : x(0), y(0), radius(1) {}
+
+Circle::Circle(double x, double y, double r) : x(x), y(y), radius(r) {
+    if (r <= 0) {
+        throw std::invalid_argument("Радіус має бути більше 0!");
+    }
+}
+
+double Circle::area() const {
+    return M_PI * radius * radius;
+}
+
+bool Circle::operator<(const Circle& other) const {
+    return this->area() < other.area();
+}
+
+Circle Circle::operator-(const Circle& other) const {
+    double newX = this->x - other.x;
+    double newY = this->y - other.y;
+    double newRadius = std::fabs(this->radius - other.radius);
+    return Circle(newX, newY, newRadius);
+}
+
+void Circle::display() const {
+    cout << "Коло: Центр (" << x << ", " << y << "), Радіус: " << radius
+        << ", Площа: " << area() << endl;
+}
+#include "Circle.h"
+#include <vector>
+#include <algorithm>
+#include <limits>
+#define NOMINMAX // Додаємо цей рядок, щоб уникнути конфлікту макроса max з <Windows.h>
+#include <Windows.h>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "ukr");
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
+    try {
+        vector<Circle> circles;
+
+        // Введення одного кола з клавіатури
+        double x, y, r;
+        cout << "Введіть координату x центру кола: ";
+        while (!(cin >> x)) {
+            cout << "Некоректне значення. Спробуйте ще раз: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+
+        cout << "Введіть координату y центру кола: ";
+        while (!(cin >> y)) {
+            cout << "Некоректне значення. Спробуйте ще раз: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+
+        cout << "Введіть радіус кола: ";
+        while (!(cin >> r) || r <= 0) {
+            cout << "Некоректний радіус. Спробуйте ще раз: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+
+        circles.push_back(Circle(x, y, r));
+
+        // Додавання інших кіл
+        circles.push_back(Circle(0, 0, 3));
+        circles.push_back(Circle(1, 1, 2));
+        circles.push_back(Circle(2, 2, 4));
+        circles.push_back(Circle(3, 3, 1));
+
+        // Вивід початкового масиву
+        cout << "\nПочатковий список кіл:" << endl;
+        for (const auto& circle : circles) {
+            circle.display();
+        }
+
+        // Сортування за площею
+        sort(circles.begin(), circles.end());
+        cout << "\nВідсортований список кіл за площею:" << endl;
+        for (const auto& circle : circles) {
+            circle.display();
+        }
+
+        // Знаходження різниці між найбільшим і найменшим колом
+        const Circle& smallest = circles.front();
+        const Circle& largest = circles.back();
+        Circle difference = largest - smallest;
+
+        cout << "\nРізниця між найбільшим і найменшим колом:" << endl;
+        difference.display();
+
+    }
+    catch (const exception& e) {
+        cerr << "Помилка: " << e.what() << endl;
+    }
+
+    return 0;
+}
