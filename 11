@@ -1,0 +1,163 @@
+// Packaging.h
+#ifndef PACKAGING_H
+#define PACKAGING_H
+
+#include <string>
+#include <iostream>
+using namespace std;
+
+class Packaging {
+protected:
+    string description;
+
+public:
+    Packaging(string desc);
+    virtual ~Packaging();
+
+    virtual void displayInfo() const;
+};
+
+#endif // PACKAGING_H
+
+
+// Box.h
+#ifndef BOX_H
+#define BOX_H
+
+#include "Packaging.h"
+
+class Box : public Packaging {
+private:
+    int capacity;
+
+public:
+    Box(string desc, int cap);
+    void displayInfo() const override;
+};
+
+#endif // BOX_H
+
+
+// Barrel.h
+#ifndef BARREL_H
+#define BARREL_H
+
+#include "Packaging.h"
+
+class Barrel : public Packaging {
+private:
+    double volume;
+
+public:
+    Barrel(string desc, double vol);
+    void displayInfo() const override;
+};
+
+#endif // BARREL_H
+
+
+// PackagingManager.h
+#ifndef PACKAGINGMANAGER_H
+#define PACKAGINGMANAGER_H
+
+#include "Packaging.h"
+#include <vector>
+#include <memory>
+
+class PackagingManager {
+public:
+    void displayAll(const vector<shared_ptr<Packaging>>& packagings) const;
+};
+
+#endif // PACKAGINGMANAGER_H
+
+
+// Packaging.cpp
+#include "Packaging.h"
+
+Packaging::Packaging(string desc) : description(desc) {}
+
+Packaging::~Packaging() {}
+
+void Packaging::displayInfo() const {
+    cout << "Packaging: " << description << "\n";
+}
+
+
+// Box.cpp
+#include "Box.h"
+
+Box::Box(string desc, int cap) : Packaging(desc), capacity(cap) {}
+
+void Box::displayInfo() const {
+    cout << "Box: " << description << ", Capacity: " << capacity << " items\n";
+}
+
+
+// Barrel.cpp
+#include "Barrel.h"
+
+Barrel::Barrel(string desc, double vol) : Packaging(desc), volume(vol) {}
+
+void Barrel::displayInfo() const {
+    cout << "Barrel: " << description << ", Volume: " << volume << " liters\n";
+}
+
+
+// PackagingManager.cpp
+#include "PackagingManager.h"
+
+void PackagingManager::displayAll(const vector<shared_ptr<Packaging>>& packagings) const {
+    for (const auto& packaging : packagings) {
+        packaging->displayInfo();
+    }
+}
+// main.cpp
+#include "Box.h"
+#include "Barrel.h"
+#include "PackagingManager.h"
+#include <iostream>
+#include <limits>
+#define NOMINMAX // Додаємо цей рядок, щоб уникнути конфлікту макроса max з <Windows.h>
+#include <Windows.h>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "ukr");
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
+    vector<shared_ptr<Packaging>> packagings;
+
+    // Введення одного об'єкта з клавіатури
+    string desc;
+    int capacity;
+    cout << "Введіть опис коробки: ";
+    getline(cin, desc);
+    while (desc.empty()) {
+        cout << "Опис не може бути порожнім. Спробуйте ще раз: ";
+        getline(cin, desc);
+    }
+
+    cout << "Введіть місткість коробки: ";
+    while (!(cin >> capacity) || capacity <= 0) {
+        cout << "Некоректна місткість. Спробуйте ще раз: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    cin.ignore();
+
+    packagings.push_back(make_shared<Box>(desc, capacity));
+
+    // Додавання інших об'єктів
+    packagings.push_back(make_shared<Box>("Small Box", 50));
+    packagings.push_back(make_shared<Box>("Large Box", 200));
+    packagings.push_back(make_shared<Barrel>("Water Barrel", 100.5));
+    packagings.push_back(make_shared<Barrel>("Oil Barrel", 75.3));
+
+    // Виведення за допомогою PackagingManager
+    PackagingManager manager;
+    cout << "\nСписок упаковок:\n";
+    manager.displayAll(packagings);
+
+    return 0;
+}
